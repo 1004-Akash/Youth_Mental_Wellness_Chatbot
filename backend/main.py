@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from contextlib import asynccontextmanager
 
 import requests
@@ -11,12 +14,10 @@ from pydantic import BaseModel
 # In-memory store for conversation context (per backend instance)
 user_memory = {}
 
-
 def build_memory_context():
     if not user_memory:
         return "None yet."
     return "\n".join(f"- {k}: {v}" for k, v in user_memory.items())
-
 
 def get_system_prompt():
     return f"""
@@ -27,7 +28,7 @@ Known context about the user:
 {build_memory_context()}
 
 Your job is to:
-- Respond kindly and with empathy.
+- Respond kindly and empathy.
 - Identify and remember key facts such as identity, academic achievements, goals, struggles.
 - Reuse those facts in follow-up questions.
 - Clear memory if the user says "forget" or "clear memory".
@@ -37,7 +38,6 @@ If the user expresses distress, show care and direct them to a helpline (e.g. iC
 Respond like a supportive friend. Use emojis sparingly. Use Hinglish if the user does.
 Keep responses short, warm, and personalized.
 """
-
 
 def update_user_memory(messages):
     global user_memory
@@ -69,12 +69,10 @@ def update_user_memory(messages):
         if m:
             user_memory["Struggle"] = m.group(1).strip()
 
-
 @asynccontextmanager
 async def lifespan(app):
     yield
     # optional cleanup
-
 
 app = FastAPI(title="InnerVoice AI", lifespan=lifespan)
 
@@ -86,26 +84,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class AIMessage(BaseModel):
     role: str
     content: str
-
 
 class AIRequest(BaseModel):
     messages: List[AIMessage]
     language: str = "en"
     memory_reset: bool = False
 
-
 class AIResponse(BaseModel):
     content: str
-
 
 def clear_memory():
     global user_memory
     user_memory = {}
-
 
 @app.get("/")
 def root():
@@ -117,14 +110,12 @@ def root():
         "<p><a href='/docs'>API docs</a></p></body></html>"
     )
 
-
 @app.post("/ai", response_model=AIResponse)
 def post_ai(req: AIRequest):
     api_key = os.environ.get("API_KEY")
     if not api_key:
         return AIResponse(content="Server error: API_KEY not configured.")
-    groq_url = os.environ.get("GROQ_API_URL", "https://api.groq.com/openai/v1/chat/completions")
-
+    groq_url = "https://api.groq.com/openai/v1/chat/completions"
     if req.memory_reset:
         clear_memory()
 
@@ -139,7 +130,7 @@ def post_ai(req: AIRequest):
         system_prompt += f"\n\nIMPORTANT: Reply in {lang_name} unless the user switches back to English."
 
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama3-8b-8192",
         "messages": [
             {"role": "system", "content": system_prompt},
             *[m for m in messages_raw if (m.get("content") or "").strip()],
@@ -164,12 +155,10 @@ def post_ai(req: AIRequest):
     except Exception as e:
         return AIResponse(content=f"Sorry, I'm having trouble connecting to the AI service. ({e})")
 
-
 @app.post("/clear-memory")
 def post_clear_memory():
     clear_memory()
     return {"ok": True}
-
 
 if __name__ == "__main__":
     import uvicorn
