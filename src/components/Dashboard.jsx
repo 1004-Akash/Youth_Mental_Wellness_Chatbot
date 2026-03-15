@@ -1,36 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BreathingExercise from "./BreathingExercise";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  MessageCircle, 
-  TrendingUp, 
-  Heart,
+import {
+  MessageCircle,
+  TrendingUp,
   Wind,
-  MapPin,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 
-interface MoodEntry {
-  score: number;
-  message: string;
-  timestamp: Date;
+function getMoodDisplay(score) {
+  if (score > 2) return { emoji: "😁", label: "Very Happy" };
+  if (score > 0) return { emoji: "😊", label: "Happy" };
+  if (score === 0) return { emoji: "😐", label: "Neutral" };
+  if (score > -3) return { emoji: "😞", label: "Sad" };
+  return { emoji: "😢", label: "Very Sad" };
 }
 
-interface DashboardProps {
-  onStartChat: () => void;
-  onTrackMood: () => void;
-  moodEntries: MoodEntry[];
-}
-
-const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) => {
-
-  // Calculate mood stats from moodEntries
+function Dashboard({ onStartChat, onTrackMood, moodEntries }) {
   const last7 = moodEntries.slice(0, 7);
-  const avgMood = last7.length > 0 ? (last7.reduce((sum, e) => sum + e.score, 0) / last7.length) : 0;
-  const avgMoodDisplay = avgMood > 2 ? "😁" : avgMood > 0 ? "😊" : avgMood === 0 ? "😐" : avgMood > -3 ? "😞" : "😢";
-  const avgMoodLabel = avgMood > 2 ? "Very Happy" : avgMood > 0 ? "Happy" : avgMood === 0 ? "Neutral" : avgMood > -3 ? "Sad" : "Very Sad";
-  const moodCount = moodEntries.length;
+  const avgMood =
+    last7.length > 0 ? last7.reduce((sum, e) => sum + e.score, 0) / last7.length : 0;
+  const { emoji: avgEmoji, label: avgLabel } = getMoodDisplay(avgMood);
   const recentEntry = moodEntries[0];
 
   return (
@@ -55,12 +45,12 @@ const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) =>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <span className="text-2xl">{avgMoodDisplay}</span>
+              <span className="text-2xl">{avgEmoji}</span>
               <div>
                 <div className="text-2xl font-semibold">{avgMood.toFixed(1)}/10</div>
                 <div className="text-sm text-muted-foreground flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
-                  {avgMoodLabel}
+                  {avgLabel}
                 </div>
               </div>
             </div>
@@ -72,7 +62,7 @@ const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) =>
             <CardTitle className="text-sm text-muted-foreground">Mood Entries</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold">{moodCount}</div>
+            <div className="text-2xl font-semibold">{moodEntries.length}</div>
             <div className="text-sm text-muted-foreground">This week</div>
           </CardContent>
         </Card>
@@ -84,10 +74,10 @@ const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) =>
           <CardContent>
             {recentEntry ? (
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{recentEntry.score > 2 ? "😁" : recentEntry.score > 0 ? "😊" : recentEntry.score === 0 ? "😐" : recentEntry.score > -3 ? "😞" : "😢"}</span>
+                <span className="text-2xl">{getMoodDisplay(recentEntry.score).emoji}</span>
                 <div>
                   <div className="text-sm font-medium">
-                    {recentEntry.score > 2 ? "Very Happy" : recentEntry.score > 0 ? "Happy" : recentEntry.score === 0 ? "Neutral" : recentEntry.score > -3 ? "Sad" : "Very Sad"}
+                    {getMoodDisplay(recentEntry.score).label}
                   </div>
                   <div className="text-xs text-muted-foreground">{recentEntry.message}</div>
                 </div>
@@ -99,15 +89,15 @@ const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) =>
         </Card>
       </div>
 
-      
-
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Wind className="w-4 h-4" />
             Deep Breathing Exercise
           </CardTitle>
-          <p className="text-sm text-muted-foreground">A simple breathing technique to reduce anxiety and stress</p>
+          <p className="text-sm text-muted-foreground">
+            A simple breathing technique to reduce anxiety and stress
+          </p>
         </CardHeader>
         <CardContent>
           <BreathingExercise />
@@ -134,11 +124,7 @@ const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) =>
             <p className="text-sm text-muted-foreground mb-4">
               Take a moment to reflect on your current mood
             </p>
-            <Button 
-              variant="outline" 
-              onClick={onTrackMood}
-              className="w-full"
-            >
+            <Button variant="outline" onClick={onTrackMood} className="w-full">
               Track Mood
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
@@ -147,6 +133,6 @@ const Dashboard = ({ onStartChat, onTrackMood, moodEntries }: DashboardProps) =>
       </div>
     </div>
   );
-};
+}
 
 export default Dashboard;

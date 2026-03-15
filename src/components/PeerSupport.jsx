@@ -1,16 +1,9 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Users, MessageCircle } from "lucide-react";
+import { User, Users } from "lucide-react";
 
-interface Post {
-  id: string;
-  author: string;
-  content: string;
-  timestamp: Date;
-}
-
-const initialPosts: Post[] = [
+const initialPosts = [
   {
     id: "1",
     author: "Anonymous",
@@ -25,16 +18,16 @@ const initialPosts: Post[] = [
   },
 ];
 
-const PeerSupport = () => {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+function PeerSupport() {
+  const [posts, setPosts] = useState(initialPosts);
   const [input, setInput] = useState("");
   const [isPosting, setIsPosting] = useState(false);
 
-  const handlePost = () => {
+  function handlePost() {
     if (!input.trim()) return;
     setIsPosting(true);
     setTimeout(() => {
-      setPosts(prev => [
+      setPosts((prev) => [
         {
           id: Date.now().toString(),
           author: "Anonymous",
@@ -46,7 +39,7 @@ const PeerSupport = () => {
       setInput("");
       setIsPosting(false);
     }, 1000);
-  };
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -54,7 +47,9 @@ const PeerSupport = () => {
         <Users className="w-5 h-5 text-primary" />
         <h1 className="text-2xl font-semibold">Peer Support Forum</h1>
       </div>
-      <p className="text-muted-foreground">Share your thoughts and support others anonymously.</p>
+      <p className="text-muted-foreground">
+        Share your thoughts and support others anonymously.
+      </p>
       <Card>
         <CardHeader>
           <CardTitle>Post a message</CardTitle>
@@ -65,7 +60,7 @@ const PeerSupport = () => {
             rows={3}
             placeholder="What's on your mind?"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             disabled={isPosting}
           />
           <Button onClick={handlePost} disabled={isPosting || !input.trim()}>
@@ -74,7 +69,7 @@ const PeerSupport = () => {
         </CardContent>
       </Card>
       <div className="space-y-4">
-        {posts.map(post => (
+        {posts.map((post) => (
           <Card key={post.id}>
             <CardHeader className="flex items-center gap-2">
               <User className="w-4 h-4 text-muted-foreground" />
@@ -91,6 +86,6 @@ const PeerSupport = () => {
       </div>
     </div>
   );
-};
+}
 
 export default PeerSupport;

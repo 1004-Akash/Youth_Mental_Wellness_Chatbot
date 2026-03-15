@@ -1,61 +1,34 @@
 import { useState } from "react";
-import { 
-  LayoutDashboard, 
-  MessageCircle, 
-  Activity, 
-  Settings, 
+import {
+  LayoutDashboard,
+  MessageCircle,
+  Activity,
+  Settings,
   LogOut,
-  Heart,
   Users,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  onRefreshChat?: () => void;
-}
+const menuItems = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "chat", label: "Chat with Innervoice", icon: MessageCircle },
+  { id: "mood-tracker", label: "Mood Tracker", icon: Activity },
+  { id: "settings", label: "Settings", icon: Settings },
+  { id: "peer-support", label: "Peer Support", icon: Users },
+];
 
-const Sidebar = ({ activeTab, onTabChange, onRefreshChat }: SidebarProps) => {
+function Sidebar({ activeTab, onTabChange, onRefreshChat }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = async () => {
+  async function handleRefresh() {
     if (onRefreshChat) {
       setIsRefreshing(true);
       await onRefreshChat();
       setIsRefreshing(false);
     }
-  };
-
-  const menuItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      id: "chat",
-  label: "Chat with Innervoice",
-      icon: MessageCircle,
-    },
-    {
-      id: "mood-tracker",
-      label: "Mood Tracker",
-      icon: Activity,
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-    },
-      {
-        id: "peer-support",
-        label: "Peer Support",
-        icon: Users,
-      },
-  ];
+  }
 
   return (
     <div className="w-64 bg-card border-r border-border h-screen flex flex-col">
@@ -91,6 +64,19 @@ const Sidebar = ({ activeTab, onTabChange, onRefreshChat }: SidebarProps) => {
               </li>
             );
           })}
+          {onRefreshChat && (
+            <li>
+              <Button
+                variant="ghost"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="w-full justify-start gap-3 h-10 px-3"
+              >
+                <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                {isRefreshing ? "Refreshing..." : "Refresh Chat"}
+              </Button>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -102,6 +88,6 @@ const Sidebar = ({ activeTab, onTabChange, onRefreshChat }: SidebarProps) => {
       </div>
     </div>
   );
-};
+}
 
 export default Sidebar;

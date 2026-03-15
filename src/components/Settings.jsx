@@ -3,28 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Settings as SettingsIcon, Bell, Shield, User, Trash2 } from "lucide-react";
-import { getFirestore, collection, deleteDoc, getDocs } from "firebase/firestore";
-import { getApp } from "firebase/app";
+import {
+  Settings as SettingsIcon,
+  Bell,
+  Shield,
+  User,
+  Trash2,
+} from "lucide-react";
 
-// Delete all mood and conversation data from Firestore
-const handleDeleteAllData = async () => {
-  if (!window.confirm("Are you sure you want to permanently delete all your mood data and conversations? This cannot be undone.")) return;
-  const db = getFirestore(getApp());
-  // Delete all documents in 'moods' collection
-  const moodsSnap = await getDocs(collection(db, "moods"));
-  for (const doc of moodsSnap.docs) {
-    await deleteDoc(doc.ref);
+// Clear local data (localStorage keys used by the app, if any) and show confirmation.
+function handleClearLocalData() {
+  if (
+    !window.confirm(
+      "Are you sure you want to clear all local data? This cannot be undone."
+    )
+  )
+    return;
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    alert("Local data cleared. Refresh the page to start fresh.");
+  } catch (e) {
+    alert("Could not clear storage: " + e.message);
   }
-  // Delete all documents in 'conversations' collection
-  const convSnap = await getDocs(collection(db, "conversations"));
-  for (const doc of convSnap.docs) {
-    await deleteDoc(doc.ref);
-  }
-  alert("All your mood data and conversations have been deleted.");
-};
+}
 
-const Settings = () => {
+function Settings() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center gap-2 mb-6">
@@ -36,29 +40,33 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              Profile Settings
+              Profile & Data
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>Display Name</Label>
-                <p className="text-sm text-muted-foreground">How you appear in the app</p>
+                <Label>Clear local data</Label>
+                <p className="text-sm text-muted-foreground">
+                  Remove all data stored in this browser (conversations and mood are in memory and will reset on refresh)
+                </p>
               </div>
-                <Button
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  onClick={handleDeleteAllData}
-                >
-                  Delete All Data
-                </Button>
+              <Button
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                onClick={handleClearLocalData}
+              >
+                Clear local data
+              </Button>
             </div>
             <Separator />
             <div className="flex items-center justify-between">
               <div>
-                <Label>Email Address</Label>
-                <p className="text-sm text-muted-foreground">For account recovery and updates</p>
+                <Label>Display Name</Label>
+                <p className="text-sm text-muted-foreground">How you appear in the app</p>
               </div>
-              <Button variant="outline" size="sm">Update</Button>
+              <Button variant="outline" size="sm">
+                Update
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -94,20 +102,20 @@ const Settings = () => {
               </div>
               <Switch defaultChecked />
             </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Language</Label>
-                  <p className="text-sm text-muted-foreground">Choose your preferred language</p>
-                </div>
-                <select className="border rounded px-2 py-1">
-                  <option value="en">English</option>
-                  <option value="hi">हिन्दी</option>
-                  <option value="ta">தமிழ்</option>
-                  <option value="bn">বাংলা</option>
-                  <option value="mr">मराठी</option>
-                </select>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Language</Label>
+                <p className="text-sm text-muted-foreground">Choose your preferred language</p>
               </div>
+              <select className="border rounded px-2 py-1">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="bn">বাংলা</option>
+                <option value="mr">मराठी</option>
+              </select>
+            </div>
           </CardContent>
         </Card>
 
@@ -122,7 +130,9 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Data Encryption</Label>
-                <p className="text-sm text-muted-foreground">All your data is encrypted and secure</p>
+                <p className="text-sm text-muted-foreground">
+                  All your data is encrypted and secure
+                </p>
               </div>
               <Switch defaultChecked disabled />
             </div>
@@ -130,7 +140,9 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Anonymous Usage Analytics</Label>
-                <p className="text-sm text-muted-foreground">Help improve the app (no personal data)</p>
+                <p className="text-sm text-muted-foreground">
+                  Help improve the app (no personal data)
+                </p>
               </div>
               <Switch />
             </div>
@@ -138,7 +150,9 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Share Data for Research</Label>
-                <p className="text-sm text-muted-foreground">Contribute to mental health research (optional)</p>
+                <p className="text-sm text-muted-foreground">
+                  Contribute to mental health research (optional)
+                </p>
               </div>
               <Switch />
             </div>
@@ -155,24 +169,20 @@ const Settings = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>Delete All Data</Label>
-                <p className="text-sm text-muted-foreground">Permanently remove all your mood data and conversations</p>
+                <Label>Clear all local data</Label>
+                <p className="text-sm text-muted-foreground">
+                  Permanently remove data stored in this browser
+                </p>
               </div>
-              <Button variant="destructive" size="sm">Delete</Button>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Delete Account</Label>
-                <p className="text-sm text-muted-foreground">Permanently delete your account and all associated data</p>
-              </div>
-              <Button variant="destructive" size="sm">Delete Account</Button>
+              <Button variant="destructive" size="sm" onClick={handleClearLocalData}>
+                Clear
+              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
   );
-};
+}
 
 export default Settings;
