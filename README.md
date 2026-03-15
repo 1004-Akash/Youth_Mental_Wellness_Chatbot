@@ -1,50 +1,42 @@
-# InnerVoice – Youth Mental Wellness Chatbot
+# InnerVoice – Youth Mental Wellness
 
-A React.js web app I built for youth mental wellness: an AI chat companion, mood tracking, breathing exercises, and an anonymous peer support section. It uses the Groq API for the chatbot and keeps the UI simple and accessible.
+**Backend only** at `/backend` (FastAPI). A minimal **React Vite frontend** at `/frontend` with the 7 core components and shared CSS is included for local/dev use.
 
-## What I built
+## Backend (`/backend`)
 
-- **Dashboard** – Overview with 7-day mood average, entry count, and quick actions to start a chat or log mood. I used React state to pass mood data between the chat and the dashboard.
-- **Chat with InnerVoice** – Conversational UI with language selection (English, Hindi, Tamil, Bengali, Marathi), optional voice input (Web Speech API), and text-to-speech for replies. I integrated the Groq API with a custom system prompt and in-memory context so the bot can refer back to what the user shared.
-- **Mood Tracker** – Combines mood from chat (sentiment from the `sentiment` library) with optional manual mood logs and tags. I used Chart.js (via react-chartjs-2) for a simple trend line.
-- **Breathing Exercise** – A single-page breathing guide (inhale / hold / exhale) with a visual circle and timers, implemented with React state and `setTimeout`/`setInterval`.
-- **Peer Support** – Anonymous posts stored in component state (no backend); I kept it minimal so it can be wired to an API later.
-- **Settings** – Toggles for notifications and a “clear local data” option that uses `localStorage`/`sessionStorage` so users can reset their session.
+FastAPI app. Deploy to Render (or run locally).
 
-## Tech stack I used
-
-- **React** (no TypeScript in the app code – I wrote the main flow in plain JavaScript/JSX)
-- **Vite** for build and dev server
-- **React Router** for the single-page routes
-- **TanStack Query** (React Query) for data fetching setup
-- **Tailwind CSS** and **shadcn/ui** (Radix-based components) for the UI
-- **Groq API** (Llama model) for the chatbot
-- **Chart.js** for the mood trend chart
-- **Sentiment** for basic sentiment scoring of chat messages
-
-## How to run it
+- **POST /ai** – Chat with AI (body: `messages`, `language`, `memory_reset`). Uses `API_KEY` and optional `GROQ_API_URL` from env.
+- **POST /clear-memory** – Clear in-memory user context.
 
 ```bash
-# Install dependencies
+cd backend
+pip install -r requirements.txt
+# Set API_KEY (and optionally GROQ_API_URL)
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+Render: start command `uvicorn main:app --host 0.0.0.0 --port $PORT`, env vars `API_KEY`, `GROQ_API_URL` (optional).
+
+## Frontend (`/frontend`) – optional
+
+Minimal React + Vite app with these components and their CSS:
+
+- **BreathingExercise.jsx**
+- **ChatInterface.jsx**
+- **Dashboard.jsx**
+- **MoodTracker.jsx**
+- **PeerSupport.jsx**
+- **Settings.jsx**
+- **Sidebar.jsx**
+
+Shared UI: `card`, `button`, `input`, `label`, `switch`, `separator` (in `src/components/ui/`). Styles in `src/index.css`.
+
+```bash
+cd frontend
 npm install
-
-# Add your Groq API key and URL in .env (see .env.example if present)
-# VITE_GROQ_API_KEY=your_key
-# VITE_GROQ_API_URL=https://api.groq.com/openai/v1/chat/completions
-
-# Start the dev server
+# Set VITE_API_URL to your backend URL (e.g. http://localhost:8000)
 npm run dev
 ```
 
-Then open the URL shown (e.g. http://localhost:8080).
-
-## Project structure (how I organized it)
-
-- `src/App.jsx` – Root layout, React Query and Router setup.
-- `src/main.jsx` – Entry point; mounts the app into the DOM.
-- `src/pages/` – `Index.jsx` (main screen with sidebar and content), `NotFound.jsx` (404).
-- `src/components/` – Main feature components: `Dashboard.jsx`, `ChatInterface.jsx`, `MoodTracker.jsx`, `BreathingExercise.jsx`, `PeerSupport.jsx`, `Settings.jsx`, `Sidebar.jsx`. The `ui/` folder has the shared shadcn components.
-- `src/api/groq.js` – Groq API client: system prompt, in-memory context, and `getGroqReply` / `clearUserMemory`.
-- `src/lib/utils.js` – Small helpers (e.g. `cn` for class names).
-
-I kept the app logic in React (hooks, state, and props) and used the existing UI library for consistency and faster development.
+Build: `npm run build` (e.g. for static deploy). No API keys in frontend; it calls the backend via `VITE_API_URL`.
